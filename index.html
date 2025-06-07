@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calorie Tracker with Activity Dropdown and Calories Remaining</title>
+<style>
+  body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
+  h2 { margin-bottom: 0; }
+  label { display: block; margin-top: 15px; }
+  input, select { width: 100%; padding: 6px; margin-top: 5px; box-sizing: border-box; }
+  .section { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px; }
+  ul { padding-left: 20px; list-style: none; max-height: 120px; overflow-y: auto; border: 1px solid #ccc; margin-top: 5px; }
+  ul li { padding: 6px; cursor: pointer; }
+  ul li:hover { background: #eee; }
+  progress { width: 100%; height: 20px; margin-top: 10px; }
+  #foodList li { padding: 4px; }
+  button { margin-top: 10px; padding: 8px; width: 100%; font-weight: bold; cursor: pointer; }
+  .activity-list { margin-top: 10px; }
+  .activity-list li { padding: 5px 0; border-bottom: 1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<h2>Calorie Tracker</h2>
+
+<div>
+  <label>Weight (kg):
+    <input type="number" id="weight" min="30" max="300" value="70" />
+  </label>
+
+  <label>Height (cm):
+    <input type="number" id="height" min="100" max="250" value="175" />
+  </label>
+
+  <label>Age:
+    <input type="number" id="age" min="10" max="120" value="30" />
+  </label>
+
+  <label>Gender:
+    <select id="gender">
+      <option value="male" selected>Male</option>
+      <option value="female">Female</option>
+    </select>
+  </label>
+
+  <label>Activity:</label>
+  <select id="activitySelect">
+    <option value="standing">Standing (1.3 kcal/kg/hr)</option>
+    <option value="walking">Walking (3.5 kcal/kg/hr)</option>
+    <option value="housework">Housework (2.5 kcal/kg/hr)</option>
+    <option value="weightlifting">Weightlifting (6.0 kcal/kg/hr)</option>
+    <option value="running">Running (10.0 kcal/kg/hr)</option>
+    <option value="cycling">Cycling (8.0 kcal/kg/hr)</option>
+    <option value="swimming">Swimming (7.0 kcal/kg/hr)</option>
+  </select>
+
+  <label>Duration (minutes):</label>
+  <input type="number" id="activityDuration" min="0" max="1440" value="0" />
+
+  <button id="addActivityBtn">Add Activity</button>
+
+  <ul id="addedActivities" class="activity-list"></ul>
+
+  <label>Goal:
+    <select id="goal">
+      <option value="lose">Lose Weight (-500 kcal)</option>
+      <option value="maintain" selected>Maintain Weight</option>
+      <option value="gain">Gain Weight (+500 kcal)</option>
+    </select>
+  </label>
+
+  <button id="calculateBtn">Calculate Calories</button>
+
+  <div class="summary">
+    <p><strong>BMR:</strong> <span id="bmrDisplay">-</span> kcal/day</p>
+    <p><strong>Calories Burned (Activities):</strong> <span id="calBurnDisplay">-</span> kcal/day</p>
+    <p><strong>Goal Calories:</strong> <span id="goalCaloriesDisplay">-</span> kcal/day</p>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Food Log</h3>
+  <input type="text" id="foodSearch" placeholder="Type to search foods..." autocomplete="off" />
+  <ul id="searchResults"></ul>
+
+  <ul id="foodList"></ul>
+  <p><strong>Total Consumed:</strong> <span id="totalCalories">0</span> kcal</p>
+  <p><strong>Calories Remaining:</strong> <span id="caloriesRemaining">-</span> kcal</p>
+
+  <progress id="progressBar" value="0" max="100"></progress>
+  <p id="progressPercent" style="text-align:center; margin-top:4px; font-weight:bold;">0%</p>
+</div>
+
+<script>
+  // Food database
+    const foodDatabase = [
+  { name: "Banana (medium)", calories: 105 },
+  { name: "Apple (medium)", calories: 95 },
+  { name: "Orange (medium)", calories: 62 },
+  { name: "Strawberries (1 cup)", calories: 49 },
+  { name: "Blueberries (1 cup)", calories: 85 },
+  { name: "Grapes (1 cup)", calories: 62 },
+  { name: "Watermelon (1 cup)", calories: 46 },
+  { name: "Pineapple (1 cup)", calories: 82 },
+  { name: "Mango (1 cup)", calories: 99 },
+  { name: "Peach (medium)", calories: 59 },
+
+  { name: "Carrot (medium)", calories: 25 },
+  { name: "Broccoli (1 cup chopped)", calories: 55 },
+  { name: "Spinach (1 cup raw)", calories: 7 },
+  { name: "Kale (1 cup raw)", calories: 33 },
+  { name: "Cauliflower (1 cup chopped)", calories: 25 },
+  { name: "Green peas (1 cup)", calories: 117 },
+  { name: "Cucumber (1/2 medium)", calories: 8 },
+  { name: "Tomato (medium)", calories: 22 },
+  { name: "Bell pepper (medium)", calories: 24 },
+  { name: "Onion (medium)", calories: 44 },
+
+  { name: "Potato (medium, baked)", calories: 161 },
+  { name: "Sweet potato (medium, baked)", calories: 103 },
+  { name: "White rice (1 cup cooked)", calories: 205 },
+  { name: "Brown rice (1 cup cooked)", calories: 216 },
+  { name: "Quinoa (1 cup cooked)", calories: 222 },
+  { name: "Oats (1 cup cooked)", calories: 158 },
+  { name: "Pasta (1 cup cooked)", calories: 221 },
+  { name: "Bread (1 slice, white)", calories: 79 },
+  { name: "Bread (1 slice, whole wheat)", calories: 69 },
+  { name: "Tortilla (medium)", calories: 140 },
+
+  { name: "Chicken breast (100g cooked)", calories: 165 },
+  { name: "Turkey breast (100g cooked)", calories: 135 },
+  { name: "Beef (100g cooked, lean)", calories: 250 },
+  { name: "Pork chop (100g cooked)", calories: 231 },
+  { name: "Salmon (100g cooked)", calories: 208 },
+  { name: "Tuna (100g cooked)", calories: 132 },
+  { name: "Shrimp (100g cooked)", calories: 99 },
+  { name: "Egg (large)", calories: 78 },
+  { name: "Cheddar cheese (28g)", calories: 113 },
+  { name: "Mozzarella cheese (28g)", calories: 85 },
+
+  { name: "Milk (1 cup, whole)", calories: 150 },
+  { name: "Milk (1 cup, skim)", calories: 83 },
+  { name: "Yogurt (plain, 1 cup)", calories: 149 },
+  { name: "Greek yogurt (plain, 1 cup)", calories: 100 },
+  { name: "Butter (1 tbsp)", calories: 102 },
+  { name: "Olive oil (1 tbsp)", calories: 119 },
+  { name: "Canola oil (1 tbsp)", calories: 124 },
+  { name: "Peanut butter (1 tbsp)", calories: 94 },
+  { name: "Almonds (1 oz)", calories: 164 },
+  { name: "Walnuts (1 oz)", calories: 185 },
+
+  { name: "Chia seeds (1 oz)", calories: 138 },
+  { name: "Flaxseeds (1 tbsp)", calories: 55 },
+  { name: "Sunflower seeds (1 oz)", calories: 165 },
+  { name: "Pumpkin seeds (1 oz)", calories: 151 },
+  { name: "Dark chocolate (1 oz, 70-85% cacao)", calories: 170 },
+  { name: "Honey (1 tbsp)", calories: 64 },
+  { name: "Sugar (1 tbsp)", calories: 49 },
+  { name: "Jam (1 tbsp)", calories: 56 },
+  { name: "Maple syrup (1 tbsp)", calories: 52 },
+  { name: "Ketchup (1 tbsp)", calories: 20 },
+
+  { name: "Coffee (black, 8 oz)", calories: 2 },
+  { name: "Tea (black, 8 oz)", calories: 2 },
+  { name: "Soda (12 oz)", calories: 140 },
+  { name: "Orange juice (8 oz)", calories: 112 },
+  { name: "Apple juice (8 oz)", calories: 114 },
+  { name: "Beer (12 oz)", calories: 153 },
+  { name: "Wine (5 oz)", calories: 125 },
+  { name: "Cocktail (typical, 5 oz)", calories: 200 },
+  { name: "Watermelon juice (8 oz)", calories: 70 },
+  { name: "Smoothie (8 oz)", calories: 150 },
+
+  { name: "French fries (100g)", calories: 312 },
+  { name: "Potato chips (1 oz)", calories: 152 },
+  { name: "Popcorn (3 cups, air-popped)", calories: 93 },
+  { name: "Pizza (1 slice, cheese)", calories: 285 },
+  { name: "Hamburger (with bun)", calories: 354 },
+  { name: "Hot dog (with bun)", calories: 290 },
+  { name: "Fried chicken (1 piece)", calories: 320 },
+  { name: "Pancakes (1 medium)", calories: 86 },
+  { name: "Waffles (1 medium)", calories: 218 },
+  { name: "Bagel (medium)", calories: 245 },
+
+  { name: "Cereal (1 cup)", calories: 120 },
+  { name: "Granola (1/4 cup)", calories: 130 },
+  { name: "Honey Nut Cheerios (1 cup)", calories: 110 },
+  { name: "Rice Krispies (1 cup)", calories: 120 },
+  { name: "Corn flakes (1 cup)", calories: 100 },
+  { name: "Milkshake (8 oz)", calories: 350 },
+  { name: "Ice cream (1/2 cup)", calories: 137 },
+  { name: "Frozen yogurt (1/2 cup)", calories: 110 },
+  { name: "Cheesecake (1 slice)", calories: 257 },
+  { name: "Brownie (1 square)", calories: 112 },
+
+  { name: "Tofu (100g)", calories: 76 },
+  { name: "Tempeh (100g)", calories: 195 },
+  { name: "Edamame (1 cup)", calories: 189 },
+  { name: "Lentils (1 cup cooked)", calories: 230 },
+  { name: "Chickpeas (1 cup cooked)", calories: 269 },
+  { name: "Black beans (1 cup cooked)", calories: 227 },
+  { name: "Kidney beans (1 cup cooked)", calories: 225 },
+  { name: "Peas (1 cup cooked)", calories: 117 },
+  { name: "Green beans (1 cup)", calories: 44 },
+  { name: "Corn (1 cup)", calories: 132 },
+
+  { name: "Avocado (medium)", calories: 234 },
+  { name: "Coconut (1 cup shredded)", calories: 283 },
+  { name: "Olives (10 small)", calories: 40 },
+  { name: "Pickles (1 medium)", calories: 5 },
+  { name: "Sauerkraut (1 cup)", calories: 27 },
+  { name: "Mushrooms (1 cup sliced)", calories: 15 },
+  { name: "Zucchini (1 cup sliced)", calories: 20 },
+  { name: "Eggplant (1 cup cubed)", calories: 35 },
+  { name: "Asparagus (1 cup)", calories: 27 },
+  { name: "Brussels sprouts (1 cup)", calories: 38 },
+
+  { name: "Sugar-free gum (1 piece)", calories: 5 },
+  { name: "Light beer (12 oz)", calories: 103 },
+  { name: "Diet soda (12 oz)", calories: 0 },
+  { name: "Energy drink (8 oz)", calories: 110 },
+  { name: "Protein bar (average)", calories: 200 },
+  { name: "Protein shake (8 oz)", calories: 150 },
+  { name: "Tofu scramble (1 cup)", calories: 180 },
+  { name: "Hummus (2 tbsp)", calories: 70 },
+  { name: "Salsa (2 tbsp)", calories: 10 },
+  { name: "Guacamole (2 tbsp)", calories: 50 },
+
+  { name: "Oatmeal cookie (1 medium)", calories: 130 },
+  { name: "Chocolate chip cookie (1 medium)", calories: 160 },
+  { name: "Donut (1 medium)", calories: 195 },
+  { name: "Croissant (1 medium)", calories: 231 },
+  { name: "Muffin (1 medium)", calories: 377 },
+  { name: "Bagel with cream cheese", calories: 450 },
+  { name: "Cream cheese (2 tbsp)", calories: 100 },
+  { name: "Mayonnaise (1 tbsp)", calories: 94 },
+  { name: "Soy sauce (1 tbsp)", calories: 10 },
+  { name: "Teriyaki sauce (1 tbsp)", calories: 15 },
+
+  { name: "Lasagna (1 cup)", calories: 336 },
+  { name: "Spaghetti with meat sauce (1 cup)", calories: 220 },
+  { name: "Macaroni and cheese (1 cup)", calories: 310 },
+  { name: "Chili (1 cup)", calories: 240 },
+  { name: "Meatloaf (3 oz)", calories: 250 },
+  { name: "Roast beef (3 oz)", calories: 180 },
+  { name: "Grilled cheese sandwich", calories: 400 },
+  { name: "Club sandwich", calories: 520 },
+  { name: "BLT sandwich", calories: 350 },
+  { name: "Caesar salad (with dressing)", calories: 330 },
+
+  { name: "Apple pie (1 slice)", calories: 296 },
+  { name: "Pumpkin pie (1 slice)", calories: 320 },
+  { name: "Chocolate cake (1 slice)", calories: 350 },
+  { name: "Carrot cake (1 slice)", calories: 326 },
+  { name: "Brownies (1 piece)", calories: 112 },
+  { name: "Cupcake (1 medium)", calories: 235 },
+  { name: "Pudding (1/2 cup)", calories: 140 },
+  { name: "Gelatin dessert (1/2 cup)", calories: 70 },
+  { name: "Whipped cream (2 tbsp)", calories: 52 },
+  { name: "Ice cream cone (small)", calories: 200 },
+
+  { name: "Cucumber salad (1 cup)", calories: 70 },
+  { name: "Coleslaw (1 cup)", calories: 200 },
+  { name: "Potato salad (1 cup)", calories: 358 },
+  { name: "Tuna salad (1 cup)", calories: 300 },
+  { name: "Egg salad (1 cup)", calories: 370 },
+  { name: "Chicken salad (1 cup)", calories: 335 },
+  { name: "Fruit salad (1 cup)", calories: 100 },
+  { name: "Greek salad (1 cup)", calories: 220 },
+  { name: "Cobb salad (1 cup)", calories: 380 },
+  { name: "Waldorf salad (1 cup)", calories: 350 },
+
+  { name: "French bread (1 slice)", calories: 80 },
+  { name: "Pita bread (medium)", calories: 165 },
+  { name: "Naan bread (medium)", calories: 262 },
+  { name: "Bagel thin (1 piece)", calories: 110 },
+  { name: "Rice cake (1 piece)", calories: 35 },
+  { name: "Pretzels (1 oz)", calories: 108 },
+  { name: "Pop-Tarts (1 pastry)", calories: 200 },
+  { name: "Granola bar (1 bar)", calories: 150 },
+  { name: "Energy bar (1 bar)", calories: 250 },
+  { name: "Trail mix (1/4 cup)", calories: 150 },
+
+  { name: "Beef jerky (1 oz)", calories: 116 },
+  { name: "Salami (1 oz)", calories: 130 },
+  { name: "Pepperoni (1 oz)", calories: 140 },
+  { name: "Bacon (1 slice)", calories: 42 },
+  { name: "Sausage (1 link)", calories: 230 },
+  { name: "Ham (3 oz)", calories: 120 },
+  { name: "Turkey deli meat (3 oz)", calories: 90 },
+  { name: "Chicken nuggets (6 pieces)", calories: 280 },
+  { name: "Fish sticks (3 pieces)", calories: 190 },
+  { name: "Crab cakes (1 piece)", calories: 240 },
+
+  { name: "Eggplant parmesan (1 cup)", calories: 330 },
+  { name: "Stuffed peppers (1 medium)", calories: 250 },
+  { name: "Vegetable stir-fry (1 cup)", calories: 150 },
+  { name: "Fried rice (1 cup)", calories: 329 },
+  { name: "Chow mein (1 cup)", calories: 230 },
+  { name: "Spring rolls (2 pieces)", calories: 200 },
+  { name: "Sushi (6 pieces)", calories: 230 },
+  { name: "Tempura (6 pieces)", calories: 350 },
+  { name: "Miso soup (1 cup)", calories: 40 },
+  { name: "Seaweed salad (1 cup)", calories: 70 },
+
+  { name: "Avocado toast (1 slice)", calories: 240 },
+  { name: "Smoothie bowl (1 serving)", calories: 350 },
+  { name: "Chia pudding (1 cup)", calories: 220 },
+  { name: "Protein pancake (1 medium)", calories: 180 },
+  { name: "Granola parfait (1 cup)", calories: 300 },
+  { name: "Cottage cheese (1/2 cup)", calories: 110 },
+  { name: "Ricotta cheese (1/2 cup)", calories: 170 },
+  { name: "Feta cheese (28g)", calories: 75 },
+  { name: "Parmesan cheese (28g)", calories: 110 },
+  { name: "Cream cheese (2 tbsp)", calories: 100 },
+];
+
+
+  // Activity MET values (kcal/kg/hr)
+  const activityMETs = {
+    standing: 1.3,
+    walking: 3.5,
+    housework: 2.5,
+    weightlifting: 6.0,
+    running: 10.0,
+    cycling: 8.0,
+    swimming: 7.0
+  };
+
+  // DOM references
+  const weightInput = document.getElementById('weight');
+  const ageInput = document.getElementById('age');
+  const heightInput = document.getElementById('height');
+  const genderSelect = document.getElementById('gender');
+  const goalSelect = document.getElementById('goal');
+
+  const activitySelect = document.getElementById('activitySelect');
+  const activityDurationInput = document.getElementById('activityDuration');
+  const addActivityBtn = document.getElementById('addActivityBtn');
+  const addedActivitiesList = document.getElementById('addedActivities');
+
+  const bmrDisplay = document.getElementById('bmrDisplay');
+  const calBurnDisplay = document.getElementById('calBurnDisplay');
+  const goalCaloriesDisplay = document.getElementById('goalCaloriesDisplay');
+
+  const foodSearchInput = document.getElementById('foodSearch');
+  const searchResults = document.getElementById('searchResults');
+  const foodList = document.getElementById('foodList');
+  const totalCaloriesDisplay = document.getElementById('totalCalories');
+  const caloriesRemainingDisplay = document.getElementById('caloriesRemaining');
+  const progressBar = document.getElementById('progressBar');
+  const progressPercent = document.getElementById('progressPercent');
+
+  let addedActivities = [];
+  let totalCaloriesConsumed = 0;
+  let goalCalories = 0;
+
+  addActivityBtn.addEventListener('click', () => {
+    const activityKey = activitySelect.value;
+    let duration = parseFloat(activityDurationInput.value);
+    if (isNaN(duration) || duration <= 0) {
+      alert('Please enter a positive duration in minutes.');
+      return;
+    }
+
+    // Add activity to the list
+    addedActivities.push({ activityKey, duration });
+
+    renderActivities();
+    activityDurationInput.value = 0;
+  });
+
+  function renderActivities() {
+    addedActivitiesList.innerHTML = '';
+    addedActivities.forEach((act, i) => {
+      const met = activityMETs[act.activityKey];
+      const weight = parseFloat(weightInput.value) || 70;
+      const caloriesBurned = met * weight * (act.duration / 60);
+      const li = document.createElement('li');
+      li.textContent = `${act.activityKey.charAt(0).toUpperCase() + act.activityKey.slice(1)} - ${act.duration} min - ${caloriesBurned.toFixed(1)} kcal`;
+      // Add remove button
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = '✖';
+      removeBtn.style.marginLeft = '10px';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.onclick = () => {
+        addedActivities.splice(i, 1);
+        renderActivities();
+      };
+      li.appendChild(removeBtn);
+      addedActivitiesList.appendChild(li);
+    });
+  }
+
+  document.getElementById('calculateBtn').addEventListener('click', () => {
+    const weight = parseFloat(weightInput.value);
+    const height = parseFloat(heightInput.value);
+    const age = parseFloat(ageInput.value);
+    const gender = genderSelect.value;
+    const goal = goalSelect.value;
+
+    if (!weight || !height || !age) {
+      alert('Please fill in weight, height, and age.');
+      return;
+    }
+
+    // Calculate BMR (Mifflin-St Jeor Equation)
+    let bmr;
+    if (gender === 'male') {
+      bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+    } else {
+      bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+    }
+    bmrDisplay.textContent = bmr.toFixed(0);
+
+    // Sum calories burned from all activities
+    let totalBurned = 0;
+    addedActivities.forEach(act => {
+      const met = activityMETs[act.activityKey];
+      totalBurned += met * weight * (act.duration / 60);
+    });
+    calBurnDisplay.textContent = totalBurned.toFixed(0);
+
+    // Calculate goal calories
+    let baseline = bmr + totalBurned;
+    if (goal === 'lose') {
+      goalCalories = baseline - 500;
+    } else if (goal === 'gain') {
+      goalCalories = baseline + 500;
+    } else {
+      goalCalories = baseline;
+    }
+    goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
+
+    updateProgress();
+  });
+
+  // Food search filtering and adding
+  foodSearchInput.addEventListener('input', () => {
+    const query = foodSearchInput.value.toLowerCase().trim();
+    searchResults.innerHTML = '';
+    if (query.length === 0) return;
+
+    const filtered = foodDatabase.filter(food => food.name.toLowerCase().includes(query));
+    filtered.forEach(food => {
+      const li = document.createElement('li');
+      li.textContent = `${food.name} (${food.calories} kcal)`;
+      li.addEventListener('click', () => {
+        addFood(food);
+        foodSearchInput.value = '';
+        searchResults.innerHTML = '';
+      });
+      searchResults.appendChild(li);
+    });
+  });
+
+  function addFood(food) {
+    // Add to consumed food list
+    const li = document.createElement('li');
+    li.textContent = `${food.name} - ${food.calories} kcal`;
+    foodList.appendChild(li);
+
+    totalCaloriesConsumed += food.calories;
+    totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    if (goalCalories <= 0) {
+      progressBar.value = 0;
+      progressBar.max = 100;
+      progressPercent.textContent = '0%';
+      caloriesRemainingDisplay.textContent = '-';
+      caloriesRemainingDisplay.style.color = 'black';
+      return;
+    }
+    let progressPercentValue = Math.min((totalCaloriesConsumed / goalCalories) * 100, 100);
+    progressBar.value = progressPercentValue;
+    progressBar.max = 100;
+    progressPercent.textContent = progressPercentValue.toFixed(0) + '%';
+
+    updateCaloriesRemaining();
+  }
+
+  function updateCaloriesRemaining() {
+    const remaining = goalCalories - totalCaloriesConsumed;
+    if (remaining >= 0) {
+      caloriesRemainingDisplay.textContent = remaining.toFixed(0);
+      caloriesRemainingDisplay.style.color = 'green';
+    } else {
+      caloriesRemainingDisplay.textContent = Math.abs(remaining).toFixed(0) + ' (over)';
+      caloriesRemainingDisplay.style.color = 'red';
+    }
+  }
+
+</script>
+</body>
+</html>

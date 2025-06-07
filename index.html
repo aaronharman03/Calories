@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Calorie Tracker with Activity Dropdown and Calories Remaining</title>
+  <link rel="manifest" href="/calorie-tracker/manifest.json" />
+<meta name="theme-color" content="#4CAF50" />
+
 <style>
   body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
   h2 { margin-bottom: 0; }
@@ -493,7 +496,18 @@
       caloriesRemainingDisplay.style.color = 'red';
     }
   }
-
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/calorie-tracker/service-worker.js')
+        .then(reg => {
+          console.log('Service Worker registered:', reg.scope);
+        })
+        .catch(err => {
+          console.error('Service Worker registration failed:', err);
+        });
+    });
+  }
 </script>
+
 </body>
 </html>

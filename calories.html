@@ -99,6 +99,10 @@
   <p id="progressPercent" style="text-align:center; margin-top:4px; font-weight:bold;">0%</p>
 </div>
 
+ <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js"></script>
+  
+
 <script>
   // Your Firebase config (replace with your actual Firebase project config)
 const firebaseConfig = {
@@ -113,8 +117,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const auth = getAuth(app);
 

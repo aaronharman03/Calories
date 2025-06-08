@@ -676,19 +676,18 @@ const db = firebase.firestore();
   let goalCalories = 0;
 
   addActivityBtn.addEventListener('click', () => {
-    const activityKey = activitySelect.value;
-    let duration = parseFloat(activityDurationInput.value);
-    if (isNaN(duration) || duration <= 0) {
-      alert('Please enter a positive duration in minutes.');
-      return;
-    }
+  const activityKey = activitySelect.value;
+  let duration = parseFloat(activityDurationInput.value);
+  if (isNaN(duration) || duration <= 0) {
+    alert('Please enter a positive duration in minutes.');
+    return;
+  }
 
-    // Add activity to the list
-    addedActivities.push({ activityKey, duration });
-
-    renderActivities();
-    activityDurationInput.value = 0;
-  });
+  addedActivities.push({ activityKey, duration });
+  renderActivities();
+  saveDataToFirestore();  // <== ADD THIS LINE
+  activityDurationInput.value = 0;
+});
 
   function renderActivities() {
     addedActivitiesList.innerHTML = '';

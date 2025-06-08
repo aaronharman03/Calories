@@ -62,7 +62,7 @@
       }
       signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
         .then(() => {
-          window.location.href = "calorie-tracker.html";
+          window.location.href = "calorie.html";
         })
         .catch((err) => {
           errorText.textContent = err.message;
@@ -77,7 +77,7 @@
       }
       createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
         .then(() => {
-          window.location.href = "calorie-tracker.html";
+          window.location.href = "calorie.html";
         })
         .catch((err) => {
           errorText.textContent = err.message;

@@ -739,6 +739,7 @@ const db = firebase.firestore();
     addedActivities.forEach(act => {
       const met = activityMETs[act.activityKey];
       totalBurned += met * weight * (act.duration / 60);
+      saveDataToFirestore();
     });
     calBurnDisplay.textContent = totalBurned.toFixed(0);
 
@@ -886,6 +887,9 @@ function loadDataFromFirestore() {
     })
     .catch(err => console.error('Error loading data:', err));
 }
+window.onload = () => {
+  loadDataFromFirestore();
+};
 
 </script>
 

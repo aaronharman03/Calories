@@ -774,16 +774,18 @@ const db = firebase.firestore();
     });
   });
 
-  function addFood(food) {
-    // Add to consumed food list
-    const li = document.createElement('li');
-    li.textContent = `${food.name} - ${food.calories} kcal`;
-    foodList.appendChild(li);
+ function addFood(food, save = true) {
+  const li = document.createElement('li');
+  li.textContent = `${food.name} - ${food.calories} kcal`;
+  foodList.appendChild(li);
 
-    totalCaloriesConsumed += food.calories;
-    totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
-    updateProgress();
-  }
+  totalCaloriesConsumed += food.calories;
+  totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
+  updateProgress();
+
+  if (save) saveDataToFirestore();
+}
+
 
   function updateProgress() {
     if (goalCalories <= 0) {
@@ -823,6 +825,67 @@ const db = firebase.firestore();
         });
     });
   }
+  function saveDataToFirestore() {
+  const data = {
+    weight: parseFloat(weightInput.value),
+    height: parseFloat(heightInput.value),
+    age: parseFloat(ageInput.value),
+    gender: genderSelect.value,
+    goal: goalSelect.value,
+    addedActivities,
+    consumedFoods: Array.from(foodList.children).map(li => {
+      const [namePart, calPart] = li.textContent.split(' - ');
+      return {
+        name: namePart.trim(),
+        calories: parseFloat(calPart)
+      };
+    }),
+    totalCaloriesConsumed,
+    goalCalories
+  };
+
+  userDocRef.set(data)
+    .then(() => console.log('Data saved to Firestore'))
+    .catch(err => console.error('Error saving data:', err));
+}
+function loadDataFromFirestore() {
+  userDocRef.get()
+    .then(doc => {
+      if (!doc.exists) return;
+      const data = doc.data();
+      if (!data) return;
+
+      if (data.weight) weightInput.value = data.weight;
+      if (data.height) heightInput.value = data.height;
+      if (data.age) ageInput.value = data.age;
+      if (data.gender) genderSelect.value = data.gender;
+      if (data.goal) goalSelect.value = data.goal;
+
+      if (Array.isArray(data.addedActivities)) {
+        addedActivities = data.addedActivities;
+        renderActivities();
+      }
+
+      if (Array.isArray(data.consumedFoods)) {
+        foodList.innerHTML = '';
+        totalCaloriesConsumed = 0;
+        data.consumedFoods.forEach(food => {
+          addFood(food, false); // false = don’t save again immediately
+        });
+      }
+
+      if (data.totalCaloriesConsumed) totalCaloriesConsumed = data.totalCaloriesConsumed;
+      if (data.goalCalories) goalCalories = data.goalCalories;
+
+      bmrDisplay.textContent = '-';
+      calBurnDisplay.textContent = '-';
+      goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
+      totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
+      updateProgress();
+    })
+    .catch(err => console.error('Error loading data:', err));
+}
+
 </script>
 
 </body>

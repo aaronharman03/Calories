@@ -13,6 +13,7 @@
   <button id="signupBtn">Sign Up</button>
   <p id="error" style="color: red;"></p>
 
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
@@ -26,6 +27,17 @@
   appId: "1:282151789435:web:1c894e6c7b9457bc07d3de",
       // optional extras
     };
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+const auth = getAuth();
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    // User is already signed in, redirect directly to the app
+    window.location.href = "calorie-tracker.html";
+  }
+  // else: no user signed in, so show the login/signup page as normal
+});
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);

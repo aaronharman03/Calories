@@ -46,6 +46,28 @@
       createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
         .then(() => window.location.href = "calorie-tracker.html")
         .catch(err => errorText.textContent = err.message);
+      loginBtn.onclick = () => {
+  errorText.textContent = "";
+  if (!emailInput.value || !passInput.value) {
+    errorText.textContent = "Please enter email and password.";
+    return;
+  }
+  signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
+    .then(() => window.location.href = "calorie-tracker.html")
+    .catch(err => errorText.textContent = err.message);
+};
+
+signupBtn.onclick = () => {
+  errorText.textContent = "";
+  if (!emailInput.value || !passInput.value) {
+    errorText.textContent = "Please enter email and password.";
+    return;
+  }
+  createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
+    .then(() => window.location.href = "calorie-tracker.html")
+    .catch(err => errorText.textContent = err.message);
+};
+
     };
   </script>
 </body>

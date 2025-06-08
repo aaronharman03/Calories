@@ -6,6 +6,11 @@
 <title>Calorie Tracker with Activity Dropdown and Calories Remaining</title>
   <link rel="manifest" href="/calorie-tracker/manifest.json" />
 <meta name="theme-color" content="#4CAF50" />
+  <!-- Firebase App (core) SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<!-- Firestore SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
 
 <style>
   body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
@@ -96,6 +101,20 @@
 </div>
 
 <script>
+  // Your Firebase config (replace with your actual Firebase project config)
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
   // Food database
     const foodDatabase = [
  { name: "Granola parfait (1 cup)", calories: 300 },

@@ -702,10 +702,12 @@ const db = firebase.firestore();
       removeBtn.textContent = '✖';
       removeBtn.style.marginLeft = '10px';
       removeBtn.style.cursor = 'pointer';
-      removeBtn.onclick = () => {
-        addedActivities.splice(i, 1);
-        renderActivities();
-      };
+     removeBtn.onclick = () => {
+  addedActivities.splice(i, 1);
+  renderActivities();
+  saveDataToFirestore();  // <== ADD THIS LINE
+};
+
       li.appendChild(removeBtn);
       addedActivitiesList.appendChild(li);
     });

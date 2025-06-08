@@ -2,45 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login / Sign Up</title>
 </head>
 <body>
   <h2>Login or Sign Up</h2>
-  <input type="email" id="email" placeholder="Email" /><br><br>
-  <input type="password" id="password" placeholder="Password" /><br><br>
+  <input type="email" id="email" placeholder="Email" /><br /><br />
+  <input type="password" id="password" placeholder="Password" /><br /><br />
   <button id="loginBtn">Log In</button>
   <button id="signupBtn">Sign Up</button>
   <p id="error" style="color: red;"></p>
 
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
+    // Your Firebase config
     const firebaseConfig = {
-       apiKey: "AIzaSyCfwj-T4Qw4AVPrlnBbgK7C8Cl4gc2TUO4",
-  authDomain: "calories-254ee.firebaseapp.com",
-  projectId: "calories-254ee",
-  storageBucket: "calories-254ee.firebasestorage.app",
-  messagingSenderId: "282151789435",
-  appId: "1:282151789435:web:1c894e6c7b9457bc07d3de",
-      // optional extras
+      apiKey: "AIzaSyCfwj-T4Qw4AVPrlnBbgK7C8Cl4gc2TUO4",
+      authDomain: "calories-254ee.firebaseapp.com",
+      projectId: "calories-254ee",
+      storageBucket: "calories-254ee.firebasestorage.app",
+      messagingSenderId: "282151789435",
+      appId: "1:282151789435:web:1c894e6c7b9457bc07d3de",
     };
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
-const auth = getAuth();
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    // User is already signed in, redirect directly to the app
-    window.location.href = "calorie-tracker.html";
-  }
-  // else: no user signed in, so show the login/signup page as normal
-});
-
+    // Initialize Firebase app *before* using auth
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+
+    // Redirect if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "calorie-tracker.html";
+      }
+      // else stay on this page to login/sign up
+    });
 
     const emailInput = document.getElementById("email");
     const passInput = document.getElementById("password");
@@ -48,38 +50,38 @@ onAuthStateChanged(auth, user => {
     const signupBtn = document.getElementById("signupBtn");
     const errorText = document.getElementById("error");
 
+    function clearError() {
+      errorText.textContent = "";
+    }
+
     loginBtn.onclick = () => {
+      clearError();
+      if (!emailInput.value || !passInput.value) {
+        errorText.textContent = "Please enter email and password.";
+        return;
+      }
       signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
-        .then(() => window.location.href = "calorie-tracker.html")
-        .catch(err => errorText.textContent = err.message);
+        .then(() => {
+          window.location.href = "calorie-tracker.html";
+        })
+        .catch((err) => {
+          errorText.textContent = err.message;
+        });
     };
 
     signupBtn.onclick = () => {
+      clearError();
+      if (!emailInput.value || !passInput.value) {
+        errorText.textContent = "Please enter email and password.";
+        return;
+      }
       createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
-        .then(() => window.location.href = "calorie-tracker.html")
-        .catch(err => errorText.textContent = err.message);
-      loginBtn.onclick = () => {
-  errorText.textContent = "";
-  if (!emailInput.value || !passInput.value) {
-    errorText.textContent = "Please enter email and password.";
-    return;
-  }
-  signInWithEmailAndPassword(auth, emailInput.value, passInput.value)
-    .then(() => window.location.href = "calorie-tracker.html")
-    .catch(err => errorText.textContent = err.message);
-};
-
-signupBtn.onclick = () => {
-  errorText.textContent = "";
-  if (!emailInput.value || !passInput.value) {
-    errorText.textContent = "Please enter email and password.";
-    return;
-  }
-  createUserWithEmailAndPassword(auth, emailInput.value, passInput.value)
-    .then(() => window.location.href = "calorie-tracker.html")
-    .catch(err => errorText.textContent = err.message);
-};
-
+        .then(() => {
+          window.location.href = "calorie-tracker.html";
+        })
+        .catch((err) => {
+          errorText.textContent = err.message;
+        });
     };
   </script>
 </body>

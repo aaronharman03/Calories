@@ -113,6 +113,21 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const userDocRef = doc(db, "users", user.uid);
+    loadDataFromFirestore(userDocRef);
+    setupSaveListeners(userDocRef); // you'll create this
+  } else {
+    window.location.href = "auth.html";
+  }
+});
+
 
   // Food database
     const foodDatabase = [

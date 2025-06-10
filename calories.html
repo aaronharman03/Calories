@@ -848,17 +848,18 @@ window.onload = () => {
       caloriesRemainingDisplay.style.color = 'red';
     }
   }
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/calorie-tracker/service-worker.js')
-        .then(reg => {
-          console.log('Service Worker registered:', reg.scope);
-        })
-        .catch(err => {
-          console.error('Service Worker registration failed:', err);
-        });
-    });
-  }
+ if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/Calories/service-worker.js')
+      .then(reg => {
+        console.log('Service Worker registered:', reg.scope);
+      })
+      .catch(err => {
+        console.error('Service Worker registration failed:', err);
+      });
+  });
+}
+
   function saveDataToFirestore() {
   const data = {
     weight: parseFloat(weightInput.value),

@@ -884,31 +884,30 @@ window.onload = () => {
     .then(() => console.log('Data saved to Firestore'))
     .catch(err => console.error('Error saving data:', err));
 }
-function loadDataFromFirestore() {
+function loadDataFromFirestore(userDocRef) {
+  if (!userDocRef) {
+    console.error("userDocRef is undefined");
+    return;
+  }
+
   userDocRef.get()
     .then(doc => {
       if (!doc.exists) return;
       const data = doc.data();
       if (!data) return;
 
-      if (data.weight) weightInput.value = data.weight;
-      if (data.height) heightInput.value = data.height;
-      if (data.age) ageInput.value = data.age;
-      if (data.gender) genderSelect.value = data.gender;
-      if (data.goal) goalSelect.value = data.goal;
+      // ✅ Example: populate your fields here
+      document.getElementById("age").value = data.age || "";
+      document.getElementById("height").value = data.height || "";
+      document.getElementById("weight").value = data.weight || "";
+      document.getElementById("gender").value = data.gender || "";
+      document.getElementById("activityLevel").value = data.activityLevel || "";
+    })
+    .catch(error => {
+      console.error("Error loading data:", error);
+    });
+}
 
-      if (Array.isArray(data.addedActivities)) {
-        addedActivities = data.addedActivities;
-        renderActivities();
-      }
-
-      if (Array.isArray(data.consumedFoods)) {
-        foodList.innerHTML = '';
-        totalCaloriesConsumed = 0;
-        data.consumedFoods.forEach(food => {
-          addFood(food, false); // false = don’t save again immediately
-        });
-      }
 
       if (data.totalCaloriesConsumed) totalCaloriesConsumed = data.totalCaloriesConsumed;
       if (data.goalCalories) goalCalories = data.goalCalories;

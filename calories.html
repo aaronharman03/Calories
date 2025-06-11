@@ -917,7 +917,7 @@ function loadDataFromFirestore(userDocRef) {
       goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
       totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
       updateProgress();
-  
+  {
     .catch(err => console.error('Error loading data:', err));
 }
 window.onload = () => {

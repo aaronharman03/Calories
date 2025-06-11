@@ -861,7 +861,12 @@ window.onload = () => {
   });
 }
 
-  function saveDataToFirestore() {
+ function saveDataToFirestore(userDocRef) {
+  if (!userDocRef) {
+    console.error("userDocRef is undefined");
+    return;
+  }
+
   const data = {
     weight: parseFloat(weightInput.value),
     height: parseFloat(heightInput.value),
@@ -884,34 +889,6 @@ window.onload = () => {
     .then(() => console.log('Data saved to Firestore'))
     .catch(err => console.error('Error saving data:', err));
 }
-function loadDataFromFirestore(userDocRef) {
-  if (!userDocRef) {
-    console.error("userDocRef is undefined");
-    return;
-  }
-
-  userDocRef.get()
-    .then(doc => {
-      if (!doc.exists) return;
-      const data = doc.data();
-      if (!data) return;
-
-      if (data.totalCaloriesConsumed) totalCaloriesConsumed = data.totalCaloriesConsumed;
-      if (data.goalCalories) goalCalories = data.goalCalories;
-
-      bmrDisplay.textContent = '-';
-      calBurnDisplay.textContent = '-';
-      goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
-      totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
-      updateProgress();
-    })
-    .catch(err => console.error('Error loading data:', err));
-}
-
-// Optional: call this after auth state changes and userDocRef is available
-window.onload = () => {
-  // Do not call loadDataFromFirestore here unless userDocRef is globally set
-};
 </script>
 </body>
 </html>

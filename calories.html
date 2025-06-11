@@ -123,27 +123,27 @@ const auth = firebase.auth();
   let userDocRef; // 🔧 fix for scoping issue
 window.onload = () => {
 
- auth.onAuthStateChanged((user) => {
+
+auth.onAuthStateChanged((user) => {
   if (user) {
-    userDocRef = db.collection("users").doc(user.uid); // ✅ NO `const`!
+    const userDocRef = db.collection("users").doc(user.uid);
 
+    loadDataFromFirestore(userDocRef); // ✅ Load data with user ref
 
-      loadDataFromFirestore(userDocRef);
+    document.getElementById("saveDataBtn").addEventListener("click", () => {
+      saveDataToFirestore(userDocRef); // ✅ Save data with user ref
+    });
 
-      // Hook up event listeners that depend on this userDocRef
-      document.getElementById("saveDataBtn").addEventListener("click", () => {
-        saveDataToFirestore(userDocRef);
-      });
+    document.getElementById("calculateBtn").addEventListener("click", () => {
+      saveDataToFirestore(userDocRef); // ✅ Save before calculate
+      calculateCalories();
+    });
 
-      document.getElementById("calculateBtn").addEventListener("click", () => {
-        saveDataToFirestore(userDocRef); // save before calculating
-        calculateCalories(); // update calculations
-      });
-    } else {
-      window.location.href = "index.html";
-    }
-  });
-};
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
 
 
 

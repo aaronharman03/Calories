@@ -896,19 +896,6 @@ function loadDataFromFirestore(userDocRef) {
       const data = doc.data();
       if (!data) return;
 
-      // ✅ Example: populate your fields here
-      document.getElementById("age").value = data.age || "";
-      document.getElementById("height").value = data.height || "";
-      document.getElementById("weight").value = data.weight || "";
-      document.getElementById("gender").value = data.gender || "";
-      document.getElementById("activityLevel").value = data.activityLevel || "";
-    })
-    .catch(error => {
-      console.error("Error loading data:", error);
-    });
-}
-
-
       if (data.totalCaloriesConsumed) totalCaloriesConsumed = data.totalCaloriesConsumed;
       if (data.goalCalories) goalCalories = data.goalCalories;
 
@@ -917,13 +904,14 @@ function loadDataFromFirestore(userDocRef) {
       goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
       totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
       updateProgress();
-  {
+    })
     .catch(err => console.error('Error loading data:', err));
 }
+
+// Optional: call this after auth state changes and userDocRef is available
 window.onload = () => {
+  // Do not call loadDataFromFirestore here unless userDocRef is globally set
 };
-
 </script>
-
 </body>
 </html>

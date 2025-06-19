@@ -867,6 +867,7 @@ auth.onAuthStateChanged((user) => {
     console.error("userDocRef is undefined");
     return;
   }
+ }
 function loadDataFromFirestore(userDocRef) {
   if (!userDocRef) return;
 
@@ -902,7 +903,7 @@ function loadDataFromFirestore(userDocRef) {
     }
   }).catch(err => console.error("Error loading data:", err));
 }
- }
+}
 </script>
 </body>
 </html>

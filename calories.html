@@ -126,17 +126,14 @@ window.onload = () => {
 
 auth.onAuthStateChanged((user) => {
   if (user) {
-   userDocRef = db.collection("users").doc(user.uid);
+    userDocRef = db.collection("users").doc(user.uid);
 
+    loadDataFromFirestore(userDocRef);
 
-    loadDataFromFirestore(userDocRef); // ✅ Load data with user ref
-
-    document.getElementById("saveDataBtn").addEventListener("click", () => {
-      saveDataToFirestore(userDocRef); // ✅ Save data with user ref
-    });
+    // Remove saveDataBtn listener since no such button exists
 
     document.getElementById("calculateBtn").addEventListener("click", () => {
-      saveDataToFirestore(userDocRef); // ✅ Save before calculate
+      saveDataToFirestore(userDocRef);
       calculateCalories();
     });
 
@@ -144,6 +141,7 @@ auth.onAuthStateChanged((user) => {
     window.location.href = "index.html";
   }
 });
+
 
 
 

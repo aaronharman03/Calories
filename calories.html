@@ -126,7 +126,8 @@ window.onload = () => {
 
 auth.onAuthStateChanged((user) => {
   if (user) {
-    const userDocRef = db.collection("users").doc(user.uid);
+   userDocRef = db.collection("users").doc(user.uid);
+
 
     loadDataFromFirestore(userDocRef); // ✅ Load data with user ref
 

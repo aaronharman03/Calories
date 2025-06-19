@@ -1,13 +1,14 @@
 const CACHE_NAME = 'calorie-tracker-cache-v1';
 const urlsToCache = [
-  '/calorie-tracker/',
-  '/calorie-tracker/index.html',
-  '/calorie-tracker/styles.css',  // if you have a CSS file
-  '/calorie-tracker/app.js',      // your main JS file
-  '/calorie-tracker/manifest.json',
-  '/calorie-tracker/icons/icon-192.png',
-  '/calorie-tracker/icons/icon-512.png'
+  '/Calories/',
+  '/Calories/index.html',
+  '/Calories/styles.css',
+  '/Calories/app.js',
+  '/Calories/manifest.json',
+  '/Calories/icons/icon-192.png',
+  '/Calories/icons/icon-512.png'
 ];
+
 
 // Install event - cache files
 self.addEventListener('install', event => {

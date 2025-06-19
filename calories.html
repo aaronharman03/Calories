@@ -866,6 +866,34 @@ auth.onAuthStateChanged((user) => {
     console.error("userDocRef is undefined");
     return;
   }
+   async function loadDataFromFirestore(userId) {
+  if (!userId) {
+    console.error("userId is undefined");
+    return;
+  }
+
+  try {
+    const userDocRef = doc(db, "users", userId);
+    const docSnap = await getDoc(userDocRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      console.log("Data loaded from Firestore:", data);
+
+      // Optionally update your UI with the loaded data
+      // For example:
+      if (data.activities) {
+        activities = data.activities;
+        updateActivityList(); // <- This should update the visible list
+      }
+    } else {
+      console.log("No data found for this user.");
+    }
+  } catch (error) {
+    console.error("Error loading data from Firestore:", error);
+  }
+}
+
 
   const data = {
     weight: parseFloat(weightInput.value),

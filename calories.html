@@ -811,6 +811,23 @@ auth.onAuthStateChanged((user) => {
  function addFood(food, save = true) {
   const li = document.createElement('li');
   li.textContent = `${food.name} - ${food.calories} kcal`;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.textContent = '✖';
+  removeBtn.style.marginLeft = '10px';
+  removeBtn.style.cursor = 'pointer';
+
+  removeBtn.onclick = () => {
+    li.remove();
+    totalCaloriesConsumed -= food.calories;
+    totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
+    updateProgress();
+
+    // Re-save current food list to Firestore
+    if (save) saveDataToFirestore();
+  };
+
+  li.appendChild(removeBtn);
   foodList.appendChild(li);
 
   totalCaloriesConsumed += food.calories;
@@ -819,6 +836,7 @@ auth.onAuthStateChanged((user) => {
 
   if (save) saveDataToFirestore();
 }
+
 function calculateCalories() {
   const weight = parseFloat(weightInput.value);
   const height = parseFloat(heightInput.value);

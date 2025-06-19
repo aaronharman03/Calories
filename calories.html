@@ -819,6 +819,49 @@ auth.onAuthStateChanged((user) => {
 
   if (save) saveDataToFirestore();
 }
+function calculateCalories() {
+  const weight = parseFloat(weightInput.value);
+  const height = parseFloat(heightInput.value);
+  const age = parseFloat(ageInput.value);
+  const gender = genderSelect.value;
+  const goal = goalSelect.value;
+
+  if (!weight || !height || !age) {
+    alert('Please fill in weight, height, and age.');
+    return;
+  }
+
+  // Calculate BMR
+  let bmr;
+  if (gender === 'male') {
+    bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+  } else {
+    bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+  }
+  bmrDisplay.textContent = bmr.toFixed(0);
+
+  // Calories from activities
+  let totalBurned = 0;
+  addedActivities.forEach(act => {
+    const met = activityMETs[act.activityKey];
+    totalBurned += met * weight * (act.duration / 60);
+  });
+  calBurnDisplay.textContent = totalBurned.toFixed(0);
+
+  // Goal calories
+  let baseline = bmr + totalBurned;
+  if (goal === 'lose') {
+    goalCalories = baseline - 500;
+  } else if (goal === 'gain') {
+    goalCalories = baseline + 500;
+  } else {
+    goalCalories = baseline;
+  }
+  goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
+
+  updateProgress();
+  saveDataToFirestore(userDocRef); // Save updated values
+}
 
 
   function updateProgress() {

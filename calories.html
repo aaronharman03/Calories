@@ -866,53 +866,42 @@ auth.onAuthStateChanged((user) => {
     console.error("userDocRef is undefined");
     return;
   }
- async function loadDataFromFirestore(userDocRef) {
-  if (!userDocRef) {
-    console.error("userDocRef is undefined");
-    return;
-  }
+function loadDataFromFirestore(userDocRef) {
+  if (!userDocRef) return;
 
-  try {
-    const docSnap = await userDocRef.get();
-    if (docSnap.exists) {
-      const data = docSnap.data();
-      console.log("Data loaded from Firestore:", data);
+  userDocRef.get().then((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.weight) weightInput.value = data.weight;
+      if (data.height) heightInput.value = data.height;
+      if (data.age) ageInput.value = data.age;
+      if (data.gender) genderSelect.value = data.gender;
+      if (data.goal) goalSelect.value = data.goal;
 
-      // ... same update logic here ...
+      if (Array.isArray(data.addedActivities)) {
+        addedActivities = data.addedActivities;
+        renderActivities();
+      }
 
-    } else {
-      console.log("No data found.");
+      if (Array.isArray(data.consumedFoods)) {
+        data.consumedFoods.forEach(food => addFood(food, false));
+      }
+
+      if (data.totalCaloriesConsumed) {
+        totalCaloriesConsumed = data.totalCaloriesConsumed;
+        totalCaloriesDisplay.textContent = totalCaloriesConsumed.toFixed(0);
+      }
+
+      if (data.goalCalories) {
+        goalCalories = data.goalCalories;
+        goalCaloriesDisplay.textContent = goalCalories.toFixed(0);
+      }
+
+      updateProgress();
     }
-  } catch (error) {
-    console.error("Error loading data:", error);
-  }
+  }).catch(err => console.error("Error loading data:", err));
 }
 
-
-
-  const data = {
-    weight: parseFloat(weightInput.value),
-    height: parseFloat(heightInput.value),
-    age: parseFloat(ageInput.value),
-    gender: genderSelect.value,
-    goal: goalSelect.value,
-    addedActivities,
-    consumedFoods: Array.from(foodList.children).map(li => {
-      const [namePart, calPart] = li.textContent.split(' - ');
-      return {
-        name: namePart.trim(),
-        calories: parseFloat(calPart)
-      };
-    }),
-    totalCaloriesConsumed,
-    goalCalories
-  };
-
-  userDocRef.set(data)
-    .then(() => console.log('Data saved to Firestore'))
-    .catch(err => console.error('Error saving data:', err));
-}
-}
 </script>
 </body>
 </html>

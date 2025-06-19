@@ -1,21 +1,22 @@
 {
   "name": "Simple Calorie Tracker",
   "short_name": "CalorieTracker",
-  "start_url": "/calorie-tracker/",
+  "start_url": "/Calories/",              <-- change here
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
   "description": "A simple calorie tracker for my parents",
   "icons": [
     {
-      "src": "/calorie-tracker/icons/icon-192.png",
+      "src": "/Calories/icons/icon-192.png",   <-- and here
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/calorie-tracker/icons/icon-512.png",
+      "src": "/Calories/icons/icon-512.png",   <-- and here
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+

@@ -860,12 +860,33 @@ auth.onAuthStateChanged((user) => {
   });
 }
 
- function saveDataToFirestore(userDocRef) {
+function saveDataToFirestore() {
   if (!userDocRef) {
     console.error("userDocRef is undefined");
     return;
   }
- }
+
+  const dataToSave = {
+    weight: parseFloat(weightInput.value),
+    height: parseFloat(heightInput.value),
+    age: parseFloat(ageInput.value),
+    gender: genderSelect.value,
+    goal: goalSelect.value,
+    addedActivities: addedActivities,
+    consumedFoods: Array.from(foodList.children).map(li => {
+      const parts = li.textContent.split(' - ');
+      return {
+        name: parts[0],
+        calories: parseFloat(parts[1])
+      };
+    }),
+    totalCaloriesConsumed: totalCaloriesConsumed,
+    goalCalories: goalCalories
+  };
+
+  userDocRef.set(dataToSave).catch(err => console.error("Error saving data:", err));
+}
+
 function loadDataFromFirestore(userDocRef) {
   if (!userDocRef) return;
 
